@@ -10,33 +10,46 @@
     state: directory
 
 - name: Clone the Git repository if not already cloned
-  command: 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" && git clone --bare {{ repo_url }} "{{ repo_dir }} "'
+  command: 'git clone --bare {{ repo_url }} {{ repo_dir }}'
   args:
     creates: "{{ repo_dir }}/HEAD"
+  environment:
+    GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   become: yes
   become_user: apache
   register: clone_result
 
 - name: Fetch the latest changes from the repository
-  command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" fetch origin'
+  command: 'git --git-dir="{{ repo_dir }}" fetch origin'
   become: yes
   become_user: apache
+  environment:
+    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
+
 
 - name: Check out the latest changes to the work-tree directory
-  command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
   become: yes
   become_user: apache
+  environment:
+    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   register: checkout_result
   when: clone_result.changed
 
+
 - name: Revert local changes to the work-tree directory
-  command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
   become: yes
   become_user: apache
+  environment:
+    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   when: not clone_result.changed
 
-- name: Pull most recent updates to the work-tree directory
-  command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" pull'
+
+- name: Pull the most recent updates to the work-tree directory
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" pull'
   become: yes
   become_user: apache
+  environment:
+    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   when: not clone_result.changed
