@@ -3,7 +3,7 @@
     path: /usr/local/.ssh
     state: directory
     mode: '0755'
-    become: yes
+  become: yes
 
 - name: Generate SSH Keypair if not present
   openssh_keypair:
