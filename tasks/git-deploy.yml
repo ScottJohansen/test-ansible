@@ -39,7 +39,7 @@
 - name: Revert local changes to the work-tree directory
 #  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
   command: >
-    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_git-ansible-deploy-test" git --git-dir="/var/www/repos/git-ansible-deploy-test" --work-tree="/var/www/html" reset --hard
+    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_git-ansible-deploy-test" git --git-dir="/var/www/repos/git-ansible-deploy-test" --work-tree="/var/www/html" reset --hard'
   become: yes
   become_user: apache
   environment:
