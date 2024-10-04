@@ -22,12 +22,9 @@
   register: clone_result
 
 - name: Fetch the latest changes from the repository
-  command: 'git --git-dir="{{ repo_dir }}" fetch origin'
+  command: >
+    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_git-ansible-deploy-test" git --git-dir="/var/www/repos/git-ansible-deploy-test" fetch origin'
   become: yes
-  become_user: apache
-  environment:
-    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
-
 
 - name: Check out the latest changes to the work-tree directory
   command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
