@@ -41,7 +41,6 @@
   command: >
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_git-ansible-deploy-test" git --git-dir="/var/www/repos/git-ansible-deploy-test" --work-tree="/var/www/html" reset --hard'
   become: yes
-  become_user: apache
   environment:
     GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   when: not clone_result.changed
