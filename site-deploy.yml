@@ -6,7 +6,7 @@
   vars:
     repo_name: "git-ansible-deploy-test"
     repo_host: "github.com" # github.com / bitbucket.org
-    repo_url: "{{ repo_name }}:martinallen-exe/{{ repo_name }}.git"  # Replace with your repository URL
+    repo_url: "{{ repo_host }}:martinallen-exe/{{ repo_name }}.git"  # Replace with your repository URL
     branch: "main"
     repo_dir: "/var/www/repos/{{ repo_name }}"  # Directory where the .git folder will be
     work_tree_dir: "/var/www/html"  # Directory where the working tree will be
