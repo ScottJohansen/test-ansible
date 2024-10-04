@@ -1,3 +1,9 @@
+- name: Ensure the directory exists
+  ansible.builtin.file:
+    path: /usr/local/.ssh
+    state: directory
+    mode: '0755'
+
 - name: Generate SSH Keypair if not present
   openssh_keypair:
     path: "/usr/local/.ssh/id_ed25519_{{ repo_name }}"
