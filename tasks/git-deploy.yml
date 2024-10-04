@@ -10,7 +10,7 @@
     state: directory
 
 - name: Clone the Git repository if not already cloned
-  command: 'git clone --bare {{ repo_url }} {{ repo_dir }}'
+  command: 'git clone --bare git@{{ repo_url }} {{ repo_dir }}'
   args:
     creates: "{{ repo_dir }}/HEAD"
   environment:
