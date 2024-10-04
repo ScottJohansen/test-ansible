@@ -14,6 +14,7 @@
     mode: "600"
     owner: apache
   register: ssh_result
+  become: yes
 
 - name: Display public key if changed
   debug:
