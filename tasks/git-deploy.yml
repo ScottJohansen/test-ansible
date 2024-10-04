@@ -2,6 +2,7 @@
   file:
     path: "{{ repo_dir }}"
     state: directory
+  become: yes
 
 - name: Ensure the work-tree directory exists
   file:
