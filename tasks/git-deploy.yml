@@ -13,25 +13,30 @@
   command: 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git clone --bare {{ repo_url }} "{{ repo_dir }} "'
   args:
     creates: "{{ repo_dir }}/HEAD"
-  become: apache
+  become: yes
+  become_user: apache
   register: clone_result
 
 - name: Fetch the latest changes from the repository
   command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" fetch origin'
-  become: apache
+  become: yes
+  become_user: apache
 
 - name: Check out the latest changes to the work-tree directory
   command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
-  become: apache
+  become: yes
+  become_user: apache
   register: checkout_result
   when: clone_result.changed
 
 - name: Revert local changes to the work-tree directory
   command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
-  become: apache
+  become: yes
+  become_user: apache
   when: not clone_result.changed
 
 - name: Pull most recent updates to the work-tree directory
   command: 'GIT_SSH_COMMAND="ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" pull'
-  become: apache
+  become: yes
+  become_user: apache
   when: not clone_result.changed
