@@ -10,7 +10,7 @@
     state: directory
 
 - name: Clone the Git repository if not already cloned
-  command: 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git clone --bare {{ repo_url }} "{{ repo_dir }} "'
+  command: 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" && git clone --bare {{ repo_url }} "{{ repo_dir }} "'
   args:
     creates: "{{ repo_dir }}/HEAD"
   become: yes
