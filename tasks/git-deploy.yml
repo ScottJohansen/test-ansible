@@ -5,6 +5,7 @@
     owner: apache
     mode: 0777
   become: yes
+  become_user: apache
 
 - name: Ensure the work-tree directory exists
   file:
