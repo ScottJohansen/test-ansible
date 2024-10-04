@@ -1,10 +1,11 @@
 - name: Generate SSH Keypair if not present
   openssh_keypair:
-    path: "{{ ansible_env.HOME }}/.ssh/id_ed25519_{{ repo_name }}"
+    path: "/usr/local/.ssh/id_ed25519_{{ repo_name }}"
     type: ed25519
     state: present
     force: no
     mode: "600"
+    owner: apache
   register: ssh_result
 
 - name: Display public key if changed

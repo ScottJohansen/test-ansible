@@ -4,46 +4,46 @@
   gather_facts: yes
 
   vars:
-    repo_name: ""
-    repo_host: "" # github.com / bitbucket.org
-    repo_url: "{{ repo_name }}:Exe-Squared/{{ repo_name }}.git"  # Replace with your repository URL
-    branch: ""
-    repo_dir: "{{ ansible_env.HOME }}/repos/{{ repo_name }}"  # Directory where the .git folder will be
-    work_tree_dir: ""  # Directory where the working tree will be
-    apache_user: "" # Apache if running PHP FPM directly, 33 if running via Docker
+    repo_name: "git-ansible-deploy-test"
+    repo_host: "github.com" # github.com / bitbucket.org
+    repo_url: "{{ repo_name }}:martinallen-exe/{{ repo_name }}.git"  # Replace with your repository URL
+    branch: "main"
+    repo_dir: "/var/www/repos/{{ repo_name }}"  # Directory where the .git folder will be
+    work_tree_dir: "/var/www/html"  # Directory where the working tree will be
+    apache_user: "apache" # Apache if running PHP FPM directly, 33 if running via Docker
 
   tasks:
     - include_tasks: tasks/generate_ssh_keypair.yml
 
-    - include_tasks: tasks/add_git_host_keys.yml
+#    - include_tasks: tasks/add_git_host_keys.yml
 
-    - name: Change directory owner to ansible
-      file:
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        path: "{{ work_tree_dir }}"
-        recurse: true
-      become: true
+#    - name: Change directory owner to ansible
+#      file:
+#        owner: "{{ ansible_user }}"
+#        group: "{{ ansible_user }}"
+#        path: "{{ work_tree_dir }}"
+#        recurse: true
+#      become: true
 
     - include_tasks: tasks/git-deploy.yml
 
-    - include_tasks: tasks/setup_files.yml
+#    - include_tasks: tasks/setup_files.yml
 
-    - include_tasks: tasks/restart_docker.yml
-      when: apache_user == "33"
+#    - include_tasks: tasks/restart_docker.yml
+#      when: apache_user == "33"
 
-    - name: Composer install
-      community.docker.docker_container_exec:
-        container:
-        command: /usr/bin/composer install --no-dev
-        chdir:
+#    - name: Composer install
+#      community.docker.docker_container_exec:
+#        container:
+#        command: /usr/bin/composer install --no-dev
+#        chdir:
 
-    - include_tasks: tasks/artisan-cache.yml
+#    - include_tasks: tasks/artisan-cache.yml
 
-    - name: Change file owner
-      file:
-        path: "{{ work_tree_dir }}"
-        owner: "{{ apache_user }}"
-        group: "{{ apache_user }}"
-        recurse: true
-      become: true
+#    - name: Change file owner
+#      file:
+#        path: "{{ work_tree_dir }}"
+#        owner: "{{ apache_user }}"
+#        group: "{{ apache_user }}"
+#        recurse: true
+#      become: true
