@@ -1,0 +1,17 @@
+- name: Run docker compose down
+  community.docker.docker_compose_v2:
+    state: absent
+    project_src: /var/www/vhosts
+
+- name: Run docker system prune
+  community.docker.docker_prune:
+    containers: true
+    images: true
+    networks: true
+
+- name: Run docker compose build and up
+  community.docker.docker_compose_v2:
+    build: always
+    project_src: /var/www/vhosts
+
+

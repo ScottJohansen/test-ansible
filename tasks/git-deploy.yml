@@ -1,0 +1,31 @@
+- name: Ensure the .git directory exists
+  file:
+    path: "{{ repo_dir }}"
+    state: directory
+
+- name: Ensure the work-tree directory exists
+  file:
+    path: "{{ work_tree_dir }}"
+    state: directory
+
+- name: Clone the Git repository if not already cloned
+  command: 'git clone --bare {{ repo_url }} "{{ repo_dir }}"'
+  args:
+    creates: "{{ repo_dir }}/HEAD"
+  register: clone_result
+
+- name: Fetch the latest changes from the repository
+  command: 'git --git-dir="{{ repo_dir }}" fetch origin'
+
+- name: Check out the latest changes to the work-tree directory
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
+  register: checkout_result
+  when: clone_result.changed
+
+- name: Revert local changes to the work-tree directory
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
+  when: not clone_result.changed
+
+- name: Pull most recent updates to the work-tree directory
+  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" pull'
+  when: not clone_result.changed

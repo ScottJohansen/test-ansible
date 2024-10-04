@@ -1,0 +1,33 @@
+name: Build and Commit Public Directory
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies from Lock File
+        run: npm ci
+
+      - name: Build Project Files
+        run: npm run-script build
+
+      - name: Commit and Push Changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "Automated commit of public directory"
+          add: "public -f"
+          push: true

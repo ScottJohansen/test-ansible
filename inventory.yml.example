@@ -1,0 +1,14 @@
+all:
+  children:
+    web_server:
+      hosts:
+        SERVER_DOMAIN:
+          desired_hostname: <server hostname>
+          ansible_db_user: ansible
+          ansible_db_password: <password>
+          dev_crm_db_name: dev_crm
+          dev_crm_db_user: dev_crm
+          dev_crm_db_user_password: <password>
+          live_crm_db_name: live_crm
+          live_crm_db_user: live_crm
+          live_crm_db_user_password: <password>

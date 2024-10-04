@@ -1,0 +1,16 @@
+- name: Create database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+    login_user: "{{ ansible_db_user }}"
+    login_password: "{{ ansible_db_password }}"
+
+- name: Create MySQL user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_user_password }}"
+    priv: "{{ db_name }}.*:ALL"
+    state: present
+    login_user: "{{ ansible_db_user }}"
+    login_password: "{{ ansible_db_password }}"
+    host: "%"

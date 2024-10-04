@@ -1,0 +1,231 @@
+---
+- name: Setup Web Server
+  hosts: all
+  become: yes
+  vars:
+    php_versions:
+      - version: 7.4
+        modules:
+          - php74-php-pdo
+          - php74-php-pdo_mysql
+          - php74-php-redis
+          - php74-php-exif
+          - php74-php-curl
+          - php74-php-pcntl
+          - php74-php-posix
+          - php74-php-zip
+      - version: 8.1
+        modules:
+          - php81-php-pdo
+          - php81-php-pdo_mysql
+          - php81-php-redis
+          - php81-php-curl
+          - php81-php-pcntl
+          - php81-php-posix
+          - php81-php-zip
+      - version: 8.3
+        modules:
+          - php83-php-pdo
+          - php83-php-pdo_mysql
+          - php83-php-redis
+          - php83-php-curl
+          - php83-php-pcntl
+          - php83-php-posix
+          - php83-php-zip
+  tasks:
+    - name: Ping the target
+      ping:
+
+    - name: Set the system hostname
+      hostname:
+        name: "{{ desired_hostname }}"
+
+    - name: Set timezone to Europe/London
+      timezone:
+        name: Europe/London
+
+    - name: Update DNF cache
+      dnf:
+        update_cache: yes
+
+    - name: Install DNF-automatic
+      dnf:
+        name: dnf-automatic
+        state: present
+
+    - name: Enable DNF-automatic
+      systemd:
+        name: dnf-automatic-install.timer
+        enabled: yes
+
+    - name: Install Apache
+      dnf:
+        name:
+          - httpd
+        state: present
+
+    - name: Make sure Apache is started now and at boot
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: Install EPEL Repo
+      dnf: name=epel-release state=present
+
+    - name: Install cronie (cron)
+      dnf:
+        name: cronie
+        state: present
+
+    - name: Ensure crond service is enabled
+      systemd:
+        name: crond
+        enabled: yes
+
+    - name: Ensure crond service is started
+      systemd:
+        name: crond
+        state: started
+
+    - name: Verify crond service status
+      command: systemctl status crond
+      register: crond_status
+
+    - debug:
+        msg: "{{ crond_status.stdout }}"
+
+    - name: Install Git
+      dnf:
+        name: git
+        state: present
+
+    - name: Verify Git installation
+      command: git --version
+      register: git_version
+
+    - debug:
+        msg: "Git version installed: {{ git_version.stdout }}"
+
+    - name: Install curl
+      dnf:
+        name: curl
+        state: present
+
+    - name: Install Certbot and python3-certbot-apache
+      dnf:
+        name:
+        - certbot
+        - certbot-apache
+        state: present
+
+    - name: Enable certbot-renew.timer
+      systemd:
+        name: certbot-renew.timer
+        enabled: yes
+
+    - name: Install required packages for Docker
+      dnf:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+
+    - name: Install PHP for each version
+      include_tasks: tasks/install_php.yml
+      loop: "{{ php_versions }}"
+      loop_control:
+        loop_var: php_version
+
+    - name: Install Redis
+      dnf:
+        name: redis
+        state: present
+
+    - name: Ensure Redis service is started and enabled
+      systemd:
+        name: redis
+        state: started
+        enabled: yes
+
+    - name: Add Docker repository
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Install Docker
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add current user to the docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Verify Docker installation
+      command: docker --version
+      register: docker_version
+
+    - debug:
+        msg: "Docker version installed: {{ docker_version.stdout }}"
+
+    - name: Set SELinux mode to permissive (immediate effect)
+      command: setenforce 0
+      when: ansible_selinux.status == "enabled"
+
+    - name: Disable SELinux permanently
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+        state: present
+
+    - name: Reboot the server to apply SELinux changes (if necessary)
+      reboot:
+        msg: "Rebooting to apply SELinux disabled setting"
+      when: ansible_selinux.status == "enabled"
+
+    - name: Install Mariadb
+      dnf:
+        name: mariadb-server
+        state: present
+
+    - name: Enable & Start Mariadb
+      systemd:
+        name: mariadb.service
+        enabled: yes
+        state: started
+
+    - name: Install Python Mysql
+      dnf:
+        name: python3-PyMySQL
+        state: present
+
+    - name: Create databases and users
+      include_tasks: tasks/create_db.yaml
+      loop:
+        - { db_name: "{{ dev_crm_db_name }}", db_user: "{{ dev_crm_db_user }}", db_user_password: "{{ dev_crm_db_user_password }}" }
+        - { db_name: "{{ live_crm_db_name }}", db_user: "{{ live_crm_db_user }}", db_user_password: "{{ live_crm_db_user_password }}" }
+      loop_control:
+        loop_var: item
+      vars:
+        db_name: "{{ item.db_name }}"
+        db_user: "{{ item.db_user }}"
+        db_user_password: "{{ item.db_user_password }}"
+
+  roles:
+      - role: ansible-role-nvm
+        become: no
+        nodejs_version: "22.4.1"
+        nvm_install: "curl"

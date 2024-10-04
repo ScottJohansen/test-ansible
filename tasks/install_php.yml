@@ -1,0 +1,35 @@
+- name: Import Remi GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://rpms.remirepo.net/enterprise/9/RPM-GPG-KEY-remi
+
+- name: Install Remi repo for AlmaLinux 9
+  ansible.builtin.dnf:
+    name: http://rpms.remirepo.net/enterprise/remi-release-9.rpm
+    state: present
+
+- name: Install PHP and PHP-FPM from Remi repository for version {{ php_version }}
+  ansible.builtin.dnf:
+    name:
+      - "php{{ php_version.version | replace('.', '') }}"  # This derives the package name from the version
+      - "php{{ php_version.version | replace('.', '') }}-php-fpm"
+    enablerepo: "remi-{{ php_version.version }}"
+    state: present
+
+- name: Install additional PHP modules for version {{ php_version.version }}
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    enablerepo: "{{ php_version.version }}"
+    state: present
+  loop: "{{ php_version.modules }}"
+  when: php_version.modules is defined
+
+- name: Start and enable php{{ php_version | replace('remi-', '') }}-php-fpm service
+  ansible.builtin.systemd:
+    name: "php{{ php_version.version | replace('.', '') }}-php-fpm"
+    enabled: yes
+    state: started
+
+- name: Set PHP Path
+  ansible.builtin.set_fact: php_path="/opt/remi/php{{ php_version.version | replace('.', '') }}/root/usr/bin/php"
+

@@ -1,0 +1,12 @@
+- name: Copy files to remote server
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'files/php-fpm-healthcheck', dest: '/var/www/vhosts/php-fpm-healthcheck' }
+
+#- name: Set file permissions
+#  file:
+#    path: "{{ item.file }}"
+#    mode: "755"
+#    state: "file"

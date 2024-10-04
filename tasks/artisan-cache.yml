@@ -1,0 +1,26 @@
+- name: Run artisan commands in docker
+  community.docker.docker_container_exec:
+    container:
+    command: "php artisan {{ item.cmd }}"
+    chdir: /var/www/html
+  loop:
+    - { cmd: "optimize:clear" }
+    - { cmd: "config:cache" }
+    - { cmd: "event:cache" }
+    - { cmd: "route:cache" }
+    - { cmd: "view:cache" }
+  when: apache_user == "33"
+
+
+- name: Run artisan commands
+  command:
+    cmd: "php artisan {{ item.cmd }}"
+    chdir: "{{ work_tree_dir }}"
+  loop:
+    - { cmd: "optimize:clear" }
+    - { cmd: "config:cache" }
+    - { cmd: "event:cache" }
+    - { cmd: "route:cache" }
+    - { cmd: "view:cache" }
+  when: apache_user == "apache"
+

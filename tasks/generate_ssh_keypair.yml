@@ -1,0 +1,31 @@
+- name: Generate SSH Keypair if not present
+  openssh_keypair:
+    path: "{{ ansible_env.HOME }}/.ssh/id_ed25519_{{ repo_name }}"
+    type: ed25519
+    state: present
+    force: no
+    mode: "600"
+  register: ssh_result
+
+- name: Display public key if changed
+  debug:
+    msg: "{{ ssh_result.public_key }}"
+  when: ssh_result.changed
+
+- name: Pause 1 minute to add deploy key
+  pause:
+    minutes: 1
+  when: ssh_result.changed
+
+- name: Write SSH config connection
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    create: true
+    block: |
+      Host {{ repo_name }}
+        HostName {{ repo_host }}
+        User git
+        IdentityFile {{ ansible_env.HOME }}/.ssh/id_ed25519_{{ repo_name }}
+    mode: "600"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
