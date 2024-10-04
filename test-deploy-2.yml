@@ -1,0 +1,16 @@
+- name: Deploy Site
+  hosts: all  # Replace with your target hosts or group name
+  gather_facts: yes
+
+  vars:
+    repo_name: "green-circle-calendar"
+    repo_host: "github.com" # github.com / bitbucket.org
+    repo_url: "{{ repo_host }}:Exe-Squared/{{ repo_name }}.git"  # Replace with your repository URL
+    branch: "main"
+    repo_dir: "/var/www/repos/{{ repo_name }}"  # Directory where the .git folder will be
+    work_tree_dir: "/var/www/html"  # Directory where the working tree will be
+    apache_user: "apache" # Apache if running PHP FPM directly, 33 if running via Docker
+
+  tasks:
+    - include_tasks: tasks/generate_ssh_keypair.yml
+    - include_tasks: tasks/git-deploy.yml
