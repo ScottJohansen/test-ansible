@@ -3,7 +3,7 @@
     path: "{{ repo_dir }}"
     state: directory
     owner: apache
-    mode: 777
+    mode: 0777
   become: yes
 
 - name: Ensure the work-tree directory exists
