@@ -16,7 +16,6 @@
   environment:
     GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   become: yes
-  become_user: apache
   register: clone_result
 
 - name: Fetch the latest changes from the repository
