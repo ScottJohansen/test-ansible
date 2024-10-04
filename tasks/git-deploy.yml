@@ -5,12 +5,14 @@
     owner: apache
     mode: 0777
   become: yes
-  become_user: apache
 
 - name: Ensure the work-tree directory exists
   file:
     path: "{{ work_tree_dir }}"
     state: directory
+    owner: apache
+    mode: 0777
+  become: yes
 
 - name: Clone the Git repository if not already cloned
   command: 'git clone --bare git@{{ repo_url }} {{ repo_dir }}'
