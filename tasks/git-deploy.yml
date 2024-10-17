@@ -1,24 +1,9 @@
-- name: Ensure the repos directory exists
-  file:
-    path: "/var/www/repos"
-    state: directory
-    owner: apache
-    mode: 0755
-  become: yes
-
-- name: Ensure the vhosts directory exists
-  file:
-    path: "/var/www/vhosts"
-    state: directory
-    owner: apache
-    mode: 0755
-  become: yes
-
 - name: Ensure the .git directory exists
   file:
     path: "{{ repo_dir }}"
     state: directory
     owner: apache
+    group: apache
     mode: 0755
   become: yes
 
@@ -27,6 +12,7 @@
     path: "{{ work_tree_dir }}"
     state: directory
     owner: apache
+    group: apache
     mode: 0755
   become: yes
 
