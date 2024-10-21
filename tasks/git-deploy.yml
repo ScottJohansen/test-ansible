@@ -3,7 +3,8 @@
     path: "{{ repo_dir }}"
     state: directory
     owner: apache
-    mode: 0777
+    group: apache
+    mode: 0755
   become: yes
 
 - name: Ensure the work-tree directory exists
@@ -11,7 +12,8 @@
     path: "{{ work_tree_dir }}"
     state: directory
     owner: apache
-    mode: 0777
+    group: apache
+    mode: 0755
   become: yes
 
 - name: Clone the Git repository if not already cloned
@@ -40,12 +42,9 @@
 
 
 - name: Revert local changes to the work-tree directory
-#  command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
   command: >
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
   become: yes
-  environment:
-    GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   when: not clone_result.changed
 
 

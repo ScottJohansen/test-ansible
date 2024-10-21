@@ -3,12 +3,12 @@
   gather_facts: yes
 
   vars:
-    repo_name: "green-circle-calendar"
+    repo_name: "test-ansible-deploy"
     repo_host: "github.com" # github.com / bitbucket.org
-    repo_url: "{{ repo_host }}:Exe-Squared/{{ repo_name }}.git"  # Replace with your repository URL
-    branch: "main"
+    repo_url: "{{ repo_host }}:ScottJohansen/{{ repo_name }}.git"  # Replace with your repository URL
+    branch: "branch-2"
     repo_dir: "/var/www/repos/{{ repo_name }}"  # Directory where the .git folder will be
-    work_tree_dir: "/var/www/vhosts/test-2"  # Directory where the working tree will be
+    work_tree_dir: "/var/www/vhosts/test2"  # Directory where the working tree will be
     apache_user: "apache" # Apache if running PHP FPM directly, 33 if running via Docker
 
   tasks:
