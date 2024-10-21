@@ -30,7 +30,6 @@
   git_config:
     name: remote.origin.fetch
     value: '+refs/heads/*:refs/remotes/origin/*'
-    scope: local
     repo: "{{ repo_dir }}"
     state: present
 
