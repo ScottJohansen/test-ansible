@@ -31,7 +31,7 @@
     name: remote.origin.fetch
     value: '+refs/heads/*:refs/remotes/origin/*'
     scope: local
-    repo: /path/to/your/repo
+    repo: "{{ repo_dir }}"
     state: present
 
 - name: Fetch the latest changes from the repository
