@@ -10,6 +10,7 @@
     repo_dir: "/var/www/repos/{{ repo_name }}"  # Directory where the .git folder will be
     work_tree_dir: "/var/www/vhosts/calendar-test"  # Directory where the working tree will be
     apache_user: "apache" # Apache if running PHP FPM directly, 33 if running via Docker
+    php_executable: "php83"
 
   tasks:
     - include_tasks: tasks/generate_ssh_keypair.yml
