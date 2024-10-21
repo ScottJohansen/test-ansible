@@ -275,14 +275,13 @@
       with_dict: "{{sites}}"
       loop_control:
         loop_var: site
-      tasks:
-        - include_tasks: /tasks/git-clone.yml
-          vars:
-            repo_dir: "{{site.value.repo_dir}}"
-            work_tree_dir: "{{site.value.work_tree_dir}}"
-            repo_name: "{{site.value.repo_name}}"
-            repo_url: "{{site.value.repo_url}}"
-            branch: "{{site.value.branch}}"
+      include_tasks: /tasks/git-clone.yml
+      vars:
+        repo_dir: "{{site.value.repo_dir}}"
+        work_tree_dir: "{{site.value.work_tree_dir}}"
+        repo_name: "{{site.value.repo_name}}"
+        repo_url: "{{site.value.repo_url}}"
+        branch: "{{site.value.branch}}"
 
   roles:
       - role: ansible-role-nvm
