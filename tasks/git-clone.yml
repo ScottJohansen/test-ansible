@@ -32,11 +32,6 @@
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
   become: yes
 
-- name: Fetch the latest changes from the repository
-  command: >
-    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" fetch origin'
-  become: yes
-
 - name: Check out the latest changes to the work-tree directory
   command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
   become: yes
