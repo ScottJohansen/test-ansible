@@ -14,3 +14,14 @@
   tasks:
     - include_tasks: tasks/generate_ssh_keypair.yml
     - include_tasks: tasks/git-deploy.yml
+
+    - name: Composer install
+      community.general.composer:
+        command: install
+        working_dir: "{{ work_tree_dir }}"
+        executable: /opt/remi/{{ php_executable }}/root/usr/bin/php
+        composer_executable: /usr/local/bin/composer
+      environment:
+        COMPOSER_HOME: /var/www/composer/
+      become: yes
+      become_user: apache
