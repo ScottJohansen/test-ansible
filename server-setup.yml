@@ -137,48 +137,74 @@
       loop_control:
         loop_var: php_version
 
-    - name: Install Redis
-      dnf:
-        name: redis
-        state: present
-
-    - name: Ensure Redis service is started and enabled
-      systemd:
-        name: redis
-        state: started
-        enabled: yes
-
-    - name: Add Docker repository
+    - name: Download Composer installer
       get_url:
-        url: https://download.docker.com/linux/centos/docker-ce.repo
-        dest: /etc/yum.repos.d/docker-ce.repo
+        url: https://getcomposer.org/installer
+        dest: /tmp/composer-setup.php
 
-    - name: Install Docker
-      dnf:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-        state: present
+    - name: Verify Composer installer SHA-384
+      shell:
+        executable: "/bin/bash"
+        cmd: |
+          HASH=$({{ php_path }} -r "copy('https://composer.github.io/installer.sig', 'php://stdout');")
+          echo $HASH
+      register: composer_hash
 
-    - name: Start and enable Docker service
-      systemd:
-        name: docker
-        state: started
-        enabled: yes
+    - name: Check Composer installer hash
+      shell:
+        executable: "/bin/bash"
+        cmd: "{{ php_path }} -r \"if (hash_file('SHA384', '/tmp/composer-setup.php') === '{{ composer_hash.stdout }}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('/tmp/composer-setup.php'); }\""
+      register: composer_verify
+      failed_when: "'Installer corrupt' in composer_verify.stdout"
 
-    - name: Add current user to the docker group
-      user:
-        name: "{{ ansible_user }}"
-        groups: docker
-        append: yes
+    - name: Install Composer
+      shell:
+        executable: "/bin/bash"
+        cmd: "{{ php_path }} /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+      when: "'Installer verified' in composer_verify.stdout"
 
-    - name: Verify Docker installation
-      command: docker --version
-      register: docker_version
+#    - name: Install Redis
+#      dnf:
+#        name: redis
+#        state: present
+#
+#    - name: Ensure Redis service is started and enabled
+#      systemd:
+#        name: redis
+#        state: started
+#        enabled: yes
 
-    - debug:
-        msg: "Docker version installed: {{ docker_version.stdout }}"
+#    - name: Add Docker repository
+#      get_url:
+#        url: https://download.docker.com/linux/centos/docker-ce.repo
+#        dest: /etc/yum.repos.d/docker-ce.repo
+#
+#    - name: Install Docker
+#      dnf:
+#        name:
+#          - docker-ce
+#          - docker-ce-cli
+#          - containerd.io
+#        state: present
+
+#    - name: Start and enable Docker service
+#      systemd:
+#        name: docker
+#        state: started
+#        enabled: yes
+
+#    - name: Add current user to the docker group
+#      user:
+#        name: "{{ ansible_user }}"
+#        groups: docker
+#        append: yes
+
+#    - name: Verify Docker installation
+#      command: docker --version
+#      register: docker_version
+#
+#    - debug:
+#        msg: "Docker version installed: {{ docker_version.stdout }}"
 
     - name: Set SELinux mode to permissive (immediate effect)
       command: setenforce 0
@@ -207,22 +233,22 @@
         enabled: yes
         state: started
 
-    - name: Install Python Mysql
-      dnf:
-        name: python3-PyMySQL
-        state: present
+#    - name: Install Python Mysql
+#      dnf:
+#        name: python3-PyMySQL
+#        state: present
 
-    - name: Create databases and users
-      include_tasks: tasks/create_db.yaml
-      loop:
-        - { db_name: "{{ dev_crm_db_name }}", db_user: "{{ dev_crm_db_user }}", db_user_password: "{{ dev_crm_db_user_password }}" }
-        - { db_name: "{{ live_crm_db_name }}", db_user: "{{ live_crm_db_user }}", db_user_password: "{{ live_crm_db_user_password }}" }
-      loop_control:
-        loop_var: item
-      vars:
-        db_name: "{{ item.db_name }}"
-        db_user: "{{ item.db_user }}"
-        db_user_password: "{{ item.db_user_password }}"
+#    - name: Create databases and users
+#      include_tasks: tasks/create_db.yaml
+#      loop:
+#        - { db_name: "{{ dev_crm_db_name }}", db_user: "{{ dev_crm_db_user }}", db_user_password: "{{ dev_crm_db_user_password }}" }
+#        - { db_name: "{{ live_crm_db_name }}", db_user: "{{ live_crm_db_user }}", db_user_password: "{{ live_crm_db_user_password }}" }
+#      loop_control:
+#        loop_var: item
+#      vars:
+#        db_name: "{{ item.db_name }}"
+#        db_user: "{{ item.db_user }}"
+#        db_user_password: "{{ item.db_user_password }}"
 
   roles:
       - role: ansible-role-nvm
