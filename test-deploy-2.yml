@@ -13,8 +13,19 @@
     php_executable: "php83"
 
   tasks:
-    - include_tasks: tasks/generate_ssh_keypair.yml
-    - include_tasks: tasks/git-deploy.yml
+
+    - name: Check if repository directory exists
+      stat:
+        path: "{{repo_dir}}"
+      register: dir_stat
+
+    - name: Clone Repo if it does not already exist.
+      include_tasks: tasks/git-clone.yml
+      when: not dir_stat.exists
+
+    - name: Deploy new changes if repo already exists.
+      include_tasks: tasks/git-update.yml
+      when: dir_stat.exists
 
     - name: Define JSON object
       set_fact:
@@ -23,10 +34,12 @@
             bitbucket.org:
               consumer-key: "{{ bitbucket_consumer_key }}"
               consumer-secret: "{{ bitbucket_consumer_secret }}"
+      when: not dir_stat.exists
 
     - name: Convert JSON object to string
       set_fact:
         json_string: "{{ json_obj | to_json }}"
+      when: not dir_stat.exists
 
     - name: Composer install
       community.general.composer:
@@ -37,5 +50,6 @@
       environment:
         COMPOSER_HOME: /var/www/composer/
         COMPOSER_AUTH: "{{json_string}}"
+      when: not dir_stat.exists
       become: yes
       become_user: apache

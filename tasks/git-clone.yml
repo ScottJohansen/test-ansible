@@ -1,3 +1,5 @@
+- include_tasks: /tasks/generate_ssh_keypair.yml
+
 - name: Ensure the .git directory exists
   file:
     path: "{{ repo_dir }}"
@@ -26,6 +28,11 @@
   become_user: apache
   register: clone_result
 
+- name: Add correct remote to Git config
+  command: >
+    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
+  become: yes
+
 - name: Fetch the latest changes from the repository
   command: >
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" fetch origin'
@@ -39,17 +46,3 @@
     GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   register: checkout_result
   when: clone_result.changed
-
-
-- name: Revert local changes to the work-tree directory
-  command: >
-    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" reset --hard'
-  become: yes
-  when: not clone_result.changed
-
-
-- name: Pull the most recent updates to the work-tree directory
-  command: >
-    sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" pull'
-  become: yes
-  when: not clone_result.changed
