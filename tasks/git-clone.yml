@@ -1,4 +1,4 @@
-- include_tasks: /tasks/generate_ssh_keypair.yml
+- include_tasks: tasks/generate_ssh_keypair.yml
 
 - name: Check if repository directory exists
   stat:
