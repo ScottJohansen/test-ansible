@@ -26,18 +26,15 @@
   become_user: apache
   register: clone_result
 
-- name: Add custom fetch refspec to Git config for bare repo with work tree
-  hosts: all
-  tasks:
-    - name: Add fetch refspec to remote.origin.fetch with git-dir and work-tree
-      git_config:
-        name: remote.origin.fetch
-        value: '+refs/heads/*:refs/remotes/origin/*'
-        scope: local
-        repo: "{{repo_dir}}"
-        state: present
-      environment:
-        GIT_WORK_TREE: "{{work_tree_dir}}"
+- name: Add fetch refspec to remote.origin.fetch with git-dir and work-tree
+  git_config:
+    name: remote.origin.fetch
+    value: '+refs/heads/*:refs/remotes/origin/*'
+    scope: local
+    repo: "{{repo_dir}}"
+    state: present
+  environment:
+    GIT_WORK_TREE: "{{work_tree_dir}}"
 
 - name: Fetch the latest changes from the repository
   command: >
