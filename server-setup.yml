@@ -149,14 +149,13 @@
         state: present
 
     - name: Install PHP for each version
-      with_dict: "{{sites}}"
+      with_dict: "{{ sites }}"
       loop_control:
         loop_var: site
-      tasks:
-        - include_tasks: tasks/install_php.yml
-          vars:
-            php_version: "{{ site.value.php_version }}"
-            modules: "{{default_modules}}"
+      include_tasks: tasks/install_php.yml
+      vars:
+        php_version: "{{ site.value.php_version }}"
+        modules: "{{ default_modules }}"
 
 
     - name: Download Composer installer
