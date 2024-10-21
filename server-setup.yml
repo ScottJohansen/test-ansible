@@ -19,7 +19,6 @@
       - mysqlnd
       - gd
       - mysqli
-      - sqlite
 #    php_versions:
 #      - version: 7.4
 #        modules:
