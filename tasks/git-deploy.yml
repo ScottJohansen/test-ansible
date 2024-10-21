@@ -26,16 +26,13 @@
   become_user: apache
   register: clone_result
 
-- name: Add custom fetch refspec to Git config
-  hosts: all
-  tasks:
-    - name: Add fetch refspec to remote.origin.fetch
-      git_config:
-        name: remote.origin.fetch
-        value: '+refs/heads/*:refs/remotes/origin/*'
-        scope: local
-        repo: /path/to/your/repo
-        state: present
+- name: Add fetch refspec to remote.origin.fetch
+  git_config:
+    name: remote.origin.fetch
+    value: '+refs/heads/*:refs/remotes/origin/*'
+    scope: local
+    repo: /path/to/your/repo
+    state: present
 
 - name: Fetch the latest changes from the repository
   command: >
