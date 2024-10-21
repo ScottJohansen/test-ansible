@@ -26,6 +26,17 @@
   become_user: apache
   register: clone_result
 
+- name: Add custom fetch refspec to Git config
+  hosts: all
+  tasks:
+    - name: Add fetch refspec to remote.origin.fetch
+      git_config:
+        name: remote.origin.fetch
+        value: '+refs/heads/*:refs/remotes/origin/*'
+        scope: local
+        repo: /path/to/your/repo
+        state: present
+
 - name: Fetch the latest changes from the repository
   command: >
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" fetch origin'
