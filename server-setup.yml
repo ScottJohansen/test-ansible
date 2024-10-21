@@ -156,7 +156,7 @@
         include_tasks: tasks/install_php.yml
         vars:
           php_version: "{{ site.value.php_version }}"
-          modules: {{default_modules}}
+          modules: "{{default_modules}}"
 
 
     - name: Download Composer installer
