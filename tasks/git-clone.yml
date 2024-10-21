@@ -1,5 +1,10 @@
 - include_tasks: /tasks/generate_ssh_keypair.yml
 
+- name: Check if repository directory exists
+  stat:
+    path: "{{repo_dir}}"
+  register: dir_stat
+
 - name: Ensure the .git directory exists
   file:
     path: "{{ repo_dir }}"
@@ -8,6 +13,7 @@
     group: apache
     mode: 0755
   become: yes
+  when: not dir_stat.stat.exists
 
 - name: Ensure the work-tree directory exists
   file:
@@ -17,6 +23,7 @@
     group: apache
     mode: 0755
   become: yes
+  when: not dir_stat.stat.exists
 
 - name: Clone the Git repository if not already cloned
   command: 'git clone --bare git@{{ repo_url }} {{ repo_dir }}'
@@ -26,11 +33,13 @@
     GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
   become: yes
   become_user: apache
+  when: not dir_stat.stat.exists
 
 - name: Add correct remote to Git config
   command: >
     sudo -u apache bash -c 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /usr/local/.ssh/id_ed25519_{{ repo_name }}" git --git-dir="{{ repo_dir }}" config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
   become: yes
+  when: not dir_stat.stat.exists
 
 - name: Check out the latest changes to the work-tree directory
   command: 'git --git-dir="{{ repo_dir }}" --work-tree="{{ work_tree_dir }}" checkout -f {{ branch }}'
@@ -38,3 +47,4 @@
   become_user: apache
   environment:
     GIT_SSH_COMMAND: 'ssh -i /usr/local/.ssh/id_ed25519_{{ repo_name }}'
+  when: not dir_stat.stat.exists
