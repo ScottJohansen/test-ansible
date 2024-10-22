@@ -27,6 +27,15 @@
 
     - include_tasks: tasks/git-update.yml
 
+    - name: Ensure the composer directory exists
+      file:
+        path: "/var/www/composer"
+        state: directory
+        owner: apache
+        group: apache
+        mode: 0755
+      become: yes
+
     - name: Define JSON object
       set_fact:
         json_obj:
