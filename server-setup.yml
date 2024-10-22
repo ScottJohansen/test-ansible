@@ -19,35 +19,6 @@
       - mysqlnd
       - gd
       - mysqli
-#    php_versions:
-#      - version: 7.4
-#        modules:
-#          - php74-php-pdo
-#          - php74-php-pdo_mysql
-#          - php74-php-redis
-#          - php74-php-exif
-#          - php74-php-curl
-#          - php74-php-pcntl
-#          - php74-php-posix
-#          - php74-php-zip
-#      - version: 8.1
-#        modules:
-#          - php81-php-pdo
-#          - php81-php-pdo_mysql
-#          - php81-php-redis
-#          - php81-php-curl
-#          - php81-php-pcntl
-#          - php81-php-posix
-#          - php81-php-zip
-#      - version: 8.3
-#        modules:
-#          - php83-php-pdo
-#          - php83-php-pdo_mysql
-#          - php83-php-redis
-#          - php83-php-curl
-#          - php83-php-pcntl
-#          - php83-php-posix
-#          - php83-php-zip
   tasks:
     - name: Ping the target
       ping:
@@ -183,49 +154,6 @@
         cmd: "{{ php_path }} /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
       when: "'Installer verified' in composer_verify.stdout"
 
-#    - name: Install Redis
-#      dnf:
-#        name: redis
-#        state: present
-#
-#    - name: Ensure Redis service is started and enabled
-#      systemd:
-#        name: redis
-#        state: started
-#        enabled: yes
-
-#    - name: Add Docker repository
-#      get_url:
-#        url: https://download.docker.com/linux/centos/docker-ce.repo
-#        dest: /etc/yum.repos.d/docker-ce.repo
-#
-#    - name: Install Docker
-#      dnf:
-#        name:
-#          - docker-ce
-#          - docker-ce-cli
-#          - containerd.io
-#        state: present
-
-#    - name: Start and enable Docker service
-#      systemd:
-#        name: docker
-#        state: started
-#        enabled: yes
-
-#    - name: Add current user to the docker group
-#      user:
-#        name: "{{ ansible_user }}"
-#        groups: docker
-#        append: yes
-
-#    - name: Verify Docker installation
-#      command: docker --version
-#      register: docker_version
-#
-#    - debug:
-#        msg: "Docker version installed: {{ docker_version.stdout }}"
-
     - name: Set SELinux mode to permissive (immediate effect)
       command: setenforce 0
       when: ansible_selinux.status == "enabled"
@@ -241,34 +169,6 @@
       reboot:
         msg: "Rebooting to apply SELinux disabled setting"
       when: ansible_selinux.status == "enabled"
-
-    - name: Install Mariadb
-      dnf:
-        name: mariadb-server
-        state: present
-
-    - name: Enable & Start Mariadb
-      systemd:
-        name: mariadb.service
-        enabled: yes
-        state: started
-
-#    - name: Install Python Mysql
-#      dnf:
-#        name: python3-PyMySQL
-#        state: present
-
-#    - name: Create databases and users
-#      include_tasks: tasks/create_db.yaml
-#      loop:
-#        - { db_name: "{{ dev_crm_db_name }}", db_user: "{{ dev_crm_db_user }}", db_user_password: "{{ dev_crm_db_user_password }}" }
-#        - { db_name: "{{ live_crm_db_name }}", db_user: "{{ live_crm_db_user }}", db_user_password: "{{ live_crm_db_user_password }}" }
-#      loop_control:
-#        loop_var: item
-#      vars:
-#        db_name: "{{ item.db_name }}"
-#        db_user: "{{ item.db_user }}"
-#        db_user_password: "{{ item.db_user_password }}"
 
     - name: Clone Git Repo of Sites
       with_dict: "{{sites}}"
