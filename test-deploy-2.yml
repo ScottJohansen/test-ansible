@@ -7,9 +7,16 @@
 
   tasks:
 
-    - name: "Access Site Variables"
+    - name: Access site variables dynamically
       set_fact:
         site: "{{ hostvars[inventory_hostname]['sites'][site_name] }}"
+
+    - name: Debug site variable
+      debug:
+        var: site
+
+    - name: "Access Site Variables"
+      set_fact:
         repo_name: "{{site.repo_name}}"
         repo_host: "{{site.repo_host}}"
         repo_url: "{{site.repo_url}}"
