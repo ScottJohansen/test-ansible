@@ -34,12 +34,10 @@
             bitbucket.org:
               consumer-key: "{{ bitbucket_consumer_key }}"
               consumer-secret: "{{ bitbucket_consumer_secret }}"
-      when: dir_stat.stat.exists
 
     - name: Convert JSON object to string
       set_fact:
         json_string: "{{ json_obj | to_json }}"
-      when: dir_stat.stat.exists
 
     - name: Composer install
       community.general.composer:
@@ -50,6 +48,5 @@
       environment:
         COMPOSER_HOME: /var/www/composer/
         COMPOSER_AUTH: "{{json_string}}"
-      when: dir_stat.stat.exists
       become: yes
       become_user: apache
