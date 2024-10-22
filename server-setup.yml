@@ -281,6 +281,7 @@
         repo_name: "{{site.value.repo_name}}"
         repo_url: "{{site.value.repo_url}}"
         branch: "{{site.value.branch}}"
+        repo_host: "{{site.value.repo_host}}"
 
   roles:
       - role: ansible-role-nvm
